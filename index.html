@@ -86,6 +86,63 @@
     opacity: 0.6;
     cursor: not-allowed;
   }
+
+  /* Image section */
+  .image-section {
+    max-width: 480px;
+    width: 100%;
+    margin-bottom: 30px;
+    text-align: center;
+  }
+  .image-section p.hint {
+    opacity: 0.5;
+    font-size: 0.8rem;
+    margin-top: 8px;
+  }
+  #genImage {
+    width: 100%;
+    max-width: 480px;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    cursor: zoom-in;
+    display: block;
+    transition: transform 0.2s ease;
+  }
+  #genImage:hover {
+    transform: scale(1.02);
+  }
+
+  /* Zoom overlay */
+  .zoom-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.9);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    cursor: zoom-out;
+    padding: 20px;
+  }
+  .zoom-overlay.active {
+    display: flex;
+  }
+  .zoom-overlay img {
+    max-width: 95vw;
+    max-height: 90vh;
+    border-radius: 10px;
+    box-shadow: 0 0 40px rgba(0,0,0,0.6);
+  }
+  .zoom-overlay .close-hint {
+    position: absolute;
+    top: 18px;
+    right: 24px;
+    color: var(--text);
+    opacity: 0.7;
+    font-size: 1.4rem;
+    cursor: pointer;
+  }
+
   .history-section {
     max-width: 480px;
     width: 100%;
@@ -163,12 +220,17 @@
 <body>
 
 <h1>🎲 Task Roulette</h1>
-<p class="subtitle">scopri la tua task</p>
+<p class="subtitle">Premi il bottone, scopri il tuo destino</p>
 
 <div class="card">
   <div class="number" id="number-label">Numero: —</div>
   <div class="task" id="task-display">Premi "Genera" per iniziare!</div>
   <button id="generate-btn">Genera 🎲</button>
+</div>
+
+<div class="image-section">
+  <img id="genImage" src="b1a1c561-e598-4891-abcb-c10145693447.jpeg" alt="Task Roulette image">
+  <p class="hint">Tocca l'immagine per ingrandirla</p>
 </div>
 
 <div class="history-section">
@@ -177,6 +239,11 @@
     <button class="clear-btn" id="clear-btn">Cancella storico</button>
   </div>
   <ul id="history-list"></ul>
+</div>
+
+<div class="zoom-overlay" id="zoom-overlay">
+  <span class="close-hint" id="zoom-close">&times;</span>
+  <img src="b1a1c561-e598-4891-abcb-c10145693447.jpeg" alt="Task Roulette image zoomed">
 </div>
 
 <script>
@@ -204,11 +271,16 @@
   };
 
   const STORAGE_KEY = "taskRouletteHistory";
+  const ZOOM_KEY = "taskRouletteImageZoomed";
+
   const taskDisplay = document.getElementById("task-display");
   const numberLabel = document.getElementById("number-label");
   const generateBtn = document.getElementById("generate-btn");
   const historyList = document.getElementById("history-list");
   const clearBtn = document.getElementById("clear-btn");
+  const genImage = document.getElementById("genImage");
+  const zoomOverlay = document.getElementById("zoom-overlay");
+  const zoomClose = document.getElementById("zoom-close");
 
   function loadHistory() {
     try {
@@ -277,6 +349,34 @@
       renderHistory();
     }
   });
+
+  // Zoom logic with persistence
+  function openZoom() {
+    zoomOverlay.classList.add("active");
+    localStorage.setItem(ZOOM_KEY, "true");
+  }
+
+  function closeZoom() {
+    zoomOverlay.classList.remove("active");
+    localStorage.setItem(ZOOM_KEY, "false");
+  }
+
+  genImage.addEventListener("click", openZoom);
+  zoomOverlay.addEventListener("click", closeZoom);
+  zoomClose.addEventListener("click", (e) => {
+    e.stopPropagation();
+    closeZoom();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && zoomOverlay.classList.contains("active")) {
+      closeZoom();
+    }
+  });
+
+  // Restore zoom state on load
+  if (localStorage.getItem(ZOOM_KEY) === "true") {
+    openZoom();
+  }
 
   renderHistory();
 </script>
