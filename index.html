@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Task Roulette 🎲</title>
+<style>
+  :root {
+    --bg: #1e1e2f;
+    --card: #2a2a3d;
+    --accent: #ff6b6b;
+    --accent2: #4ecdc4;
+    --text: #f4f4f9;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    background: linear-gradient(135deg, var(--bg), #12121c);
+    color: var(--text);
+    font-family: 'Segoe UI', Tahoma, Verdana, sans-serif;
+    padding: 30px 15px 60px;
+  }
+  h1 {
+    font-size: 1.8rem;
+    margin-bottom: 5px;
+    text-align: center;
+  }
+  .subtitle {
+    opacity: 0.7;
+    margin-bottom: 30px;
+    text-align: center;
+    font-size: 0.95rem;
+  }
+  .card {
+    background: var(--card);
+    border-radius: 20px;
+    padding: 35px 25px;
+    max-width: 480px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    margin-bottom: 30px;
+  }
+  .number {
+    font-size: 1rem;
+    opacity: 0.6;
+    margin-bottom: 10px;
+    letter-spacing: 2px;
+  }
+  .task {
+    font-size: 1.6rem;
+    font-weight: 600;
+    line-height: 1.4;
+    min-height: 90px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.15s ease;
+  }
+  .task.spinning {
+    transform: scale(0.95);
+    opacity: 0.6;
+  }
+  button {
+    margin-top: 25px;
+    padding: 14px 36px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 50px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: white;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    box-shadow: 0 6px 15px rgba(255,107,107,0.3);
+  }
+  button:active {
+    transform: scale(0.96);
+  }
+  button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  .history-section {
+    max-width: 480px;
+    width: 100%;
+  }
+  .history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .history-header h2 {
+    font-size: 1.1rem;
+    margin: 0;
+    opacity: 0.85;
+  }
+  .clear-btn {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.25);
+    color: var(--text);
+    font-size: 0.8rem;
+    padding: 6px 14px;
+    margin: 0;
+    box-shadow: none;
+  }
+  .clear-btn:hover {
+    border-color: var(--accent);
+  }
+  ul#history-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 320px;
+    overflow-y: auto;
+  }
+  ul#history-list li {
+    background: var(--card);
+    border-radius: 10px;
+    padding: 10px 14px;
+    display: flex;
+    gap: 12px;
+    align-items: baseline;
+    font-size: 0.9rem;
+    animation: fadeIn 0.3s ease;
+  }
+  ul#history-list li .idx {
+    opacity: 0.5;
+    font-size: 0.75rem;
+    min-width: 22px;
+  }
+  ul#history-list li .num {
+    color: var(--accent2);
+    font-weight: 700;
+    min-width: 22px;
+  }
+  ul#history-list li .time {
+    margin-left: auto;
+    opacity: 0.4;
+    font-size: 0.75rem;
+  }
+  .empty {
+    opacity: 0.5;
+    text-align: center;
+    padding: 20px 0;
+    font-size: 0.9rem;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<h1>🎲 Task Roulette</h1>
+<p class="subtitle">Premi il bottone, scopri il tuo destino</p>
+
+<div class="card">
+  <div class="number" id="number-label">Numero: —</div>
+  <div class="task" id="task-display">Premi "Genera" per iniziare!</div>
+  <button id="generate-btn">Genera 🎲</button>
+</div>
+
+<div class="history-section">
+  <div class="history-header">
+    <h2>Storico</h2>
+    <button class="clear-btn" id="clear-btn">Cancella storico</button>
+  </div>
+  <ul id="history-list"></ul>
+</div>
+
+<script>
+  const TASKS = {
+    1: "aprire e chiudere il rubinetto - stai idratando! bevi! 🚰",
+    2: "aprire e chiudere il frigo - tira fuori qualcosa, quello dopo lo sistema 🧃",
+    3: "ulula nel giardino dietro 🐺",
+    4: "salta e batti le mani sul retro 👏",
+    5: "fai 5 squat👨🏻‍🦽",
+    6: "sdraiati sul divano 🛋️",
+    7: "log 🖊️✍🏻",
+    8: "confessionale 🎥",
+    9: "fischia 🌬️",
+    10: "tira in aria un cuscino e colpiscilo 🛌",
+    11: "sdraiati sul letto e fai ronf mimimimi 💤",
+    12: "leggi ad alta voce una pagina di topolino 🐭",
+    13: "\u201ccombattenti, di terra, di mare e dell\u2019aria\u201d dalla finestra, sentiti lui 🖤🦅",
+    14: "sali e scendi dal letto a castello 🏰",
+    15: "salta 3 volte 🤸🏻‍♂️",
+    16: "dai un bacio alla macchina di enrico 🛻",
+    17: "tre giri della piscina 🏊‍♀️",
+    18: "abbraccia l\u2019albero 🌳",
+    19: "corri fino al cancello 🏃🏻‍♂️",
+    20: "lancia una pallina nei bicchieri ☄️🥤"
+  };
+
+  const STORAGE_KEY = "taskRouletteHistory";
+  const taskDisplay = document.getElementById("task-display");
+  const numberLabel = document.getElementById("number-label");
+  const generateBtn = document.getElementById("generate-btn");
+  const historyList = document.getElementById("history-list");
+  const clearBtn = document.getElementById("clear-btn");
+
+  function loadHistory() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function saveHistory(history) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+  }
+
+  function renderHistory() {
+    const history = loadHistory();
+    historyList.innerHTML = "";
+    if (history.length === 0) {
+      historyList.innerHTML = '<li class="empty" style="justify-content:center;">Nessuna estrazione ancora</li>';
+      return;
+    }
+    history.slice().reverse().forEach((entry, i) => {
+      const li = document.createElement("li");
+      const idx = history.length - i;
+      li.innerHTML = `<span class="idx">#${idx}</span><span class="num">${entry.number}</span><span>${entry.task}</span><span class="time">${entry.time}</span>`;
+      historyList.appendChild(li);
+    });
+  }
+
+  function addToHistory(number, task) {
+    const history = loadHistory();
+    const time = new Date().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+    history.push({ number, task, time });
+    saveHistory(history);
+    renderHistory();
+  }
+
+  function generateTask() {
+    generateBtn.disabled = true;
+    taskDisplay.classList.add("spinning");
+
+    let ticks = 0;
+    const spinInterval = setInterval(() => {
+      const tempNum = Math.floor(Math.random() * 20) + 1;
+      numberLabel.textContent = "Numero: " + tempNum;
+      taskDisplay.textContent = TASKS[tempNum];
+      ticks++;
+      if (ticks > 10) {
+        clearInterval(spinInterval);
+        const finalNum = Math.floor(Math.random() * 20) + 1;
+        const finalTask = TASKS[finalNum];
+        numberLabel.textContent = "Numero: " + finalNum;
+        taskDisplay.textContent = finalTask;
+        taskDisplay.classList.remove("spinning");
+        generateBtn.disabled = false;
+        addToHistory(finalNum, finalTask);
+      }
+    }, 60);
+  }
+
+  generateBtn.addEventListener("click", generateTask);
+
+  clearBtn.addEventListener("click", () => {
+    if (confirm("Vuoi davvero cancellare lo storico?")) {
+      localStorage.removeItem(STORAGE_KEY);
+      renderHistory();
+    }
+  });
+
+  renderHistory();
+</script>
+
+</body>
+</html>
