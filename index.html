@@ -4,6 +4,22 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Task Roulette 🎲</title>
+
+<!-- Open Graph / WhatsApp link preview tags -->
+<!-- IMPORTANT: replace the placeholder below with your real absolute image URL, e.g.
+     https://YOUR_USERNAME.github.io/YOUR_REPO/IMG_0240.jpeg
+     or  https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/IMG_0240.jpeg -->
+<meta property="og:title" content="Task Roulette 🎲">
+<meta property="og:description" content="Premi il bottone, scopri il tuo destino">
+<meta property="og:image" content="https://REPLACE-WITH-YOUR-DOMAIN/IMG_0240.jpeg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://REPLACE-WITH-YOUR-DOMAIN/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Task Roulette 🎲">
+<meta name="twitter:description" content="Premi il bottone, scopri il tuo destino">
+<meta name="twitter:image" content="https://REPLACE-WITH-YOUR-DOMAIN/IMG_0240.jpeg">
+
 <style>
   :root {
     --bg: #1e1e2f;
@@ -94,53 +110,12 @@
     margin-bottom: 30px;
     text-align: center;
   }
-  .image-section p.hint {
-    opacity: 0.5;
-    font-size: 0.8rem;
-    margin-top: 8px;
-  }
   #genImage {
     width: 100%;
     max-width: 480px;
     border-radius: 16px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-    cursor: zoom-in;
     display: block;
-    transition: transform 0.2s ease;
-  }
-  #genImage:hover {
-    transform: scale(1.02);
-  }
-
-  /* Zoom overlay */
-  .zoom-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.9);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    cursor: zoom-out;
-    padding: 20px;
-  }
-  .zoom-overlay.active {
-    display: flex;
-  }
-  .zoom-overlay img {
-    max-width: 95vw;
-    max-height: 90vh;
-    border-radius: 10px;
-    box-shadow: 0 0 40px rgba(0,0,0,0.6);
-  }
-  .zoom-overlay .close-hint {
-    position: absolute;
-    top: 18px;
-    right: 24px;
-    color: var(--text);
-    opacity: 0.7;
-    font-size: 1.4rem;
-    cursor: pointer;
   }
 
   .history-section {
@@ -229,8 +204,7 @@
 </div>
 
 <div class="image-section">
-  <img id="genImage" src="b1a1c561-e598-4891-abcb-c10145693447.jpeg" alt="Task Roulette image">
-  <p class="hint">Tocca l'immagine per ingrandirla</p>
+  <img id="genImage" src="IMG_0240.jpeg" alt="Task Roulette image">
 </div>
 
 <div class="history-section">
@@ -239,11 +213,6 @@
     <button class="clear-btn" id="clear-btn">Cancella storico</button>
   </div>
   <ul id="history-list"></ul>
-</div>
-
-<div class="zoom-overlay" id="zoom-overlay">
-  <span class="close-hint" id="zoom-close">&times;</span>
-  <img src="b1a1c561-e598-4891-abcb-c10145693447.jpeg" alt="Task Roulette image zoomed">
 </div>
 
 <script>
@@ -271,16 +240,12 @@
   };
 
   const STORAGE_KEY = "taskRouletteHistory";
-  const ZOOM_KEY = "taskRouletteImageZoomed";
 
   const taskDisplay = document.getElementById("task-display");
   const numberLabel = document.getElementById("number-label");
   const generateBtn = document.getElementById("generate-btn");
   const historyList = document.getElementById("history-list");
   const clearBtn = document.getElementById("clear-btn");
-  const genImage = document.getElementById("genImage");
-  const zoomOverlay = document.getElementById("zoom-overlay");
-  const zoomClose = document.getElementById("zoom-close");
 
   function loadHistory() {
     try {
@@ -349,34 +314,6 @@
       renderHistory();
     }
   });
-
-  // Zoom logic with persistence
-  function openZoom() {
-    zoomOverlay.classList.add("active");
-    localStorage.setItem(ZOOM_KEY, "true");
-  }
-
-  function closeZoom() {
-    zoomOverlay.classList.remove("active");
-    localStorage.setItem(ZOOM_KEY, "false");
-  }
-
-  genImage.addEventListener("click", openZoom);
-  zoomOverlay.addEventListener("click", closeZoom);
-  zoomClose.addEventListener("click", (e) => {
-    e.stopPropagation();
-    closeZoom();
-  });
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && zoomOverlay.classList.contains("active")) {
-      closeZoom();
-    }
-  });
-
-  // Restore zoom state on load
-  if (localStorage.getItem(ZOOM_KEY) === "true") {
-    openZoom();
-  }
 
   renderHistory();
 </script>
